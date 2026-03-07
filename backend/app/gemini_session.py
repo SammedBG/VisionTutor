@@ -62,6 +62,7 @@ class GeminiSession:
 
         self._client: Optional[genai.Client] = None
         self._session = None
+        self._ctx_manager = None  # Must keep reference to prevent GC
         self._receive_task: Optional[asyncio.Task] = None
         self._is_active = False
         self._auto_reconnect = True
@@ -76,27 +77,27 @@ class GeminiSession:
         self._client = genai.Client(api_key=gemini_config.api_key)
 
         # Configure the Live session
-        config = {
-            "response_modalities": ["AUDIO"],
-            "system_instruction": TUTOR_SYSTEM_PROMPT,
-            "speech_config": {
-                "voice_config": {
-                    "prebuilt_voice_config": {
-                        "voice_name": gemini_config.voice_name
-                    }
-                }
-            },
-            # Enable input audio transcription so we can show what the user said
-            "input_audio_transcription": {},
-            # Enable output audio transcription so we can show what the tutor said
-            "output_audio_transcription": {},
-        }
+        config = types.LiveConnectConfig(
+            response_modalities=["AUDIO"],
+            system_instruction=types.Content(
+                parts=[types.Part(text=TUTOR_SYSTEM_PROMPT)]
+            ),
+            speech_config=types.SpeechConfig(
+                voice_config=types.VoiceConfig(
+                    prebuilt_voice_config=types.PrebuiltVoiceConfig(
+                        voice_name=gemini_config.voice_name
+                    )
+                )
+            ),
+        )
 
-        # Open the live session (async context manager)
-        self._session = await self._client.aio.live.connect(
+        # Open the live session
+        # IMPORTANT: Store the context manager to prevent garbage collection
+        self._ctx_manager = self._client.aio.live.connect(
             model=gemini_config.model,
             config=config,
-        ).__aenter__()
+        )
+        self._session = await self._ctx_manager.__aenter__()
 
         self._is_active = True
 
@@ -265,32 +266,34 @@ class GeminiSession:
     async def _reconnect(self) -> None:
         """Reconnect to Gemini Live API after a session drop."""
         # Close old session
-        if self._session:
+        if self._ctx_manager:
             try:
-                await self._session.__aexit__(None, None, None)
+                await self._ctx_manager.__aexit__(None, None, None)
             except Exception:
                 pass
             self._session = None
+            self._ctx_manager = None
 
         # Reopen
-        config = {
-            "response_modalities": ["AUDIO"],
-            "system_instruction": TUTOR_SYSTEM_PROMPT,
-            "speech_config": {
-                "voice_config": {
-                    "prebuilt_voice_config": {
-                        "voice_name": gemini_config.voice_name
-                    }
-                }
-            },
-            "input_audio_transcription": {},
-            "output_audio_transcription": {},
-        }
+        config = types.LiveConnectConfig(
+            response_modalities=["AUDIO"],
+            system_instruction=types.Content(
+                parts=[types.Part(text=TUTOR_SYSTEM_PROMPT)]
+            ),
+            speech_config=types.SpeechConfig(
+                voice_config=types.VoiceConfig(
+                    prebuilt_voice_config=types.PrebuiltVoiceConfig(
+                        voice_name=gemini_config.voice_name
+                    )
+                )
+            ),
+        )
 
-        self._session = await self._client.aio.live.connect(
+        self._ctx_manager = self._client.aio.live.connect(
             model=gemini_config.model,
             config=config,
-        ).__aenter__()
+        )
+        self._session = await self._ctx_manager.__aenter__()
 
         self._is_active = True
         self._reconnect_count += 1
@@ -318,12 +321,13 @@ class GeminiSession:
             except asyncio.CancelledError:
                 pass
 
-        if self._session:
+        if self._ctx_manager:
             try:
-                await self._session.__aexit__(None, None, None)
+                await self._ctx_manager.__aexit__(None, None, None)
             except Exception as e:
                 logger.error(f"[{self.session_id}] Error closing session: {e}")
             self._session = None
+            self._ctx_manager = None
 
         elapsed = time.time() - self._created_at
         logger.info(

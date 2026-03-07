@@ -3,134 +3,200 @@
 import { useRef, useState, useCallback, useEffect } from "react";
 import { useVisionTutor } from "./hooks/useVisionTutor";
 
-// ── Icon Components ──────────────────────────────────────────────
-function MicIcon({ size = 20 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
-      <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-      <line x1="12" y1="19" x2="12" y2="22" />
-    </svg>
-  );
+/* ══════════════════════════════════════════════════════
+   SVG Icon Components
+   ══════════════════════════════════════════════════════ */
+
+function IconMic({ size = 20 }) {
+  return (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /><line x1="12" y1="19" x2="12" y2="22" /></svg>);
+}
+function IconMicOff({ size = 20 }) {
+  return (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="2" y1="2" x2="22" y2="22" /><path d="M18.89 13.23A7.12 7.12 0 0 0 19 12v-2" /><path d="M5 10v2a7 7 0 0 0 12 5" /><path d="M15 9.34V5a3 3 0 0 0-5.68-1.33" /><path d="M9 9v3a3 3 0 0 0 5.12 2.12" /><line x1="12" y1="19" x2="12" y2="22" /></svg>);
+}
+function IconCamera({ size = 20 }) {
+  return (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" /><circle cx="12" cy="13" r="3" /></svg>);
+}
+function IconUpload({ size = 20 }) {
+  return (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>);
+}
+function IconSend({ size = 18 }) {
+  return (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 2L11 13" /><path d="M22 2L15 22L11 13L2 9L22 2Z" /></svg>);
+}
+function IconX({ size = 18 }) {
+  return (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>);
+}
+function IconSparkles({ size = 20 }) {
+  return (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l1.912 5.813a1 1 0 0 0 .6.6L20.325 12l-5.813 1.912a1 1 0 0 0-.6.6L12 20.325l-1.912-5.813a1 1 0 0 0-.6-.6L3.675 12l5.813-1.912a1 1 0 0 0 .6-.6L12 3z" /></svg>);
+}
+function IconLogOut({ size = 18 }) {
+  return (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>);
+}
+function IconEye({ size = 20 }) {
+  return (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>);
+}
+function IconBookOpen({ size = 20 }) {
+  return (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg>);
+}
+function IconMessageCircle({ size = 28 }) {
+  return (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg>);
 }
 
-function MicOffIcon({ size = 20 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="2" y1="2" x2="22" y2="22" />
-      <path d="M18.89 13.23A7.12 7.12 0 0 0 19 12v-2" />
-      <path d="M5 10v2a7 7 0 0 0 12 5" />
-      <path d="M15 9.34V5a3 3 0 0 0-5.68-1.33" />
-      <path d="M9 9v3a3 3 0 0 0 5.12 2.12" />
-      <line x1="12" y1="19" x2="12" y2="22" />
-    </svg>
-  );
-}
+/* ══════════════════════════════════════════════════════
+   Data
+   ══════════════════════════════════════════════════════ */
 
-function CameraIcon({ size = 20 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
-      <circle cx="12" cy="13" r="3" />
-    </svg>
-  );
-}
-
-function UploadIcon({ size = 20 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-      <polyline points="17 8 12 3 7 8" />
-      <line x1="12" y1="3" x2="12" y2="15" />
-    </svg>
-  );
-}
-
-function SendIcon({ size = 18 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="22" y1="2" x2="11" y2="13" />
-      <polygon points="22 2 15 22 11 13 2 9 22 2" />
-    </svg>
-  );
-}
-
-function PhoneIcon({ size = 20 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-    </svg>
-  );
-}
-
-function XIcon({ size = 20 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="18" y1="6" x2="6" y2="18" />
-      <line x1="6" y1="6" x2="18" y2="18" />
-    </svg>
-  );
-}
-
-// ── Subject Data ─────────────────────────────────────────────────
 const SUBJECTS = [
-  { id: "general", label: "General", color: "#a1a1aa" },
-  { id: "mathematics", label: "Math", color: "#06b6d4" },
-  { id: "physics", label: "Physics", color: "#8b5cf6" },
-  { id: "chemistry", label: "Chemistry", color: "#f59e0b" },
-  { id: "computer_science", label: "CS", color: "#10b981" },
-  { id: "biology", label: "Biology", color: "#f43f5e" },
+  { id: "general", label: "General", color: "#9490b3" },
+  { id: "mathematics", label: "Maths", color: "#f0b847" },
+  { id: "physics", label: "Physics", color: "#7c6bf0" },
+  { id: "chemistry", label: "Chemistry", color: "#ff7e67" },
+  { id: "computer_science", label: "CS", color: "#4fd1a8" },
+  { id: "biology", label: "Biology", color: "#f06292" },
 ];
 
-// ── Audio Waveform Visualizer ────────────────────────────────────
-function WaveformVisualizer({ isActive, color = "var(--accent-cyan)" }) {
-  if (!isActive) return null;
+/* ══════════════════════════════════════════════════════
+   Sub-components
+   ══════════════════════════════════════════════════════ */
+
+function AuroraBackground() {
   return (
-    <div className="flex items-end gap-[2px] h-6">
-      {[...Array(5)].map((_, i) => (
-        <span
-          key={i}
-          className="wave-bar"
-          style={{ backgroundColor: color }}
-        />
+    <div className="aurora-bg">
+      <div className="aurora-blob aurora-blob-1" />
+      <div className="aurora-blob aurora-blob-2" />
+      <div className="aurora-blob aurora-blob-3" />
+    </div>
+  );
+}
+
+function Waveform({ active, color = "var(--accent-indigo)" }) {
+  if (!active) return null;
+  return (
+    <div className="wave-container">
+      {[...Array(7)].map((_, i) => (
+        <span key={i} className="wave-bar" style={{ backgroundColor: color }} />
       ))}
     </div>
   );
 }
 
-// ── Transcript Message ───────────────────────────────────────────
-function TranscriptMessage({ role, text }) {
-  const isModel = role === "model";
+function TypingIndicator() {
   return (
-    <div
-      className={`flex gap-3 animate-fade-in ${isModel ? "" : "flex-row-reverse"}`}
-    >
-      <div
-        className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold"
-        style={{
-          background: isModel
-            ? "linear-gradient(135deg, #06b6d4, #8b5cf6)"
-            : "linear-gradient(135deg, #f59e0b, #f43f5e)",
-        }}
-      >
-        {isModel ? "VT" : "You"}
-      </div>
-      <div
-        className={`max-w-[80%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${
-          isModel
-            ? "bg-[var(--bg-elevated)] text-[var(--text-primary)] rounded-tl-sm"
-            : "bg-[var(--accent-cyan)]/10 text-[var(--text-primary)] rounded-tr-sm"
-        }`}
-      >
-        {text}
+    <div className="typing-dots msg-bubble msg-model" style={{ maxWidth: 80 }}>
+      <span className="typing-dot" />
+      <span className="typing-dot" />
+      <span className="typing-dot" />
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════
+   Landing Page
+   ══════════════════════════════════════════════════════ */
+
+function LandingPage({ onStart, error }) {
+  return (
+    <div className="page-center">
+      <AuroraBackground />
+      <div className="animate-fade-up" style={{ position: "relative", zIndex: 10, maxWidth: 540, textAlign: "center" }}>
+        {/* Logo */}
+        <div style={{ marginBottom: 40 }}>
+          <div style={{ position: "relative", display: "inline-block" }}>
+            <div style={{
+              width: 96, height: 96, borderRadius: 28,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              margin: "0 auto 28px",
+              background: "var(--gradient-aurora)",
+              boxShadow: "0 0 80px rgba(124,107,240,0.3), 0 0 40px rgba(240,184,71,0.15)",
+            }}>
+              <IconEye size={42} />
+            </div>
+            <div style={{
+              position: "absolute", inset: -8, borderRadius: 32,
+              border: "1px dashed rgba(124,107,240,0.2)",
+              animation: "spin-slow 30s linear infinite",
+            }} />
+          </div>
+          <h1 className="gradient-text" style={{ fontSize: 52, fontWeight: 800, marginBottom: 16, lineHeight: 1.1 }}>
+            VisionTutor
+          </h1>
+          <p style={{ fontSize: 16, color: "var(--text-secondary)", lineHeight: 1.7, maxWidth: 420, margin: "0 auto" }}>
+            An AI tutor that <strong style={{ color: "var(--text-primary)" }}>sees your notes</strong> and{" "}
+            <strong style={{ color: "var(--text-primary)" }}>hears your questions</strong> — responding in real time with voice.
+          </p>
+        </div>
+
+        {/* Feature Cards */}
+        <div className="feature-grid">
+          {[
+            { icon: <IconMic size={24} />, title: "Voice Chat", desc: "Speak naturally, interrupt anytime", color: "var(--accent-indigo)", bg: "var(--accent-indigo-dim)" },
+            { icon: <IconEye size={24} />, title: "Vision Input", desc: "Show handwritten notes via webcam", color: "var(--accent-gold)", bg: "var(--accent-gold-dim)" },
+            { icon: <IconSparkles size={24} />, title: "Live Response", desc: "Real-time voice + text tutor", color: "var(--accent-mint)", bg: "var(--accent-mint-dim)" },
+          ].map((f, i) => (
+            <div key={i} className="glass">
+              <div className="feature-icon" style={{ background: f.bg, color: f.color }}>{f.icon}</div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)", marginBottom: 4 }}>{f.title}</div>
+              <div style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.5 }}>{f.desc}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* CTA */}
+        <button onClick={onStart} className="btn-primary">
+          <IconSparkles size={18} />
+          Start Tutoring Session
+        </button>
+
+        {error && (
+          <div style={{
+            marginTop: 20, padding: 16, borderRadius: 16,
+            background: "var(--accent-rose-dim)", border: "1px solid rgba(240,98,146,0.2)",
+            color: "var(--accent-rose)", fontSize: 14,
+          }}>
+            {error}
+          </div>
+        )}
+
+        <p style={{ color: "var(--text-dim)", fontSize: 11, marginTop: 32, letterSpacing: "0.05em" }}>
+          Powered by Gemini Live API · Built for the Gemini Live Agent Challenge
+        </p>
       </div>
     </div>
   );
 }
 
-// ── Main Page ────────────────────────────────────────────────────
-export default function Home() {
-  const tutor = useVisionTutor();
+/* ══════════════════════════════════════════════════════
+   Connecting Screen
+   ══════════════════════════════════════════════════════ */
+
+function ConnectingScreen() {
+  return (
+    <div className="page-center">
+      <AuroraBackground />
+      <div className="animate-scale-in" style={{ position: "relative", zIndex: 10, textAlign: "center" }}>
+        <div style={{ position: "relative", display: "inline-block", marginBottom: 32 }}>
+          <div style={{
+            width: 80, height: 80, borderRadius: 24,
+            background: "var(--gradient-primary)",
+            animation: "breathe 1.5s ease-in-out infinite",
+          }} />
+          <div style={{
+            position: "absolute", inset: -6, borderRadius: 28,
+            border: "2px dashed rgba(124,107,240,0.3)",
+            animation: "spin-slow 4s linear infinite",
+          }} />
+        </div>
+        <p style={{ color: "var(--text-secondary)", fontSize: 14, fontWeight: 500 }}>Connecting to VisionTutor...</p>
+        <p style={{ color: "var(--text-dim)", fontSize: 12, marginTop: 8 }}>Initializing Gemini Live session</p>
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════
+   Main Session UI
+   ══════════════════════════════════════════════════════ */
+
+function SessionUI({ tutor }) {
   const [showCamera, setShowCamera] = useState(false);
   const [textInput, setTextInput] = useState("");
   const [uploadedImages, setUploadedImages] = useState([]);
@@ -140,28 +206,12 @@ export default function Home() {
   const fileInputRef = useRef(null);
   const transcriptEndRef = useRef(null);
 
-  // Auto-scroll transcripts
   useEffect(() => {
     transcriptEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [tutor.transcripts]);
 
-  // ── Handlers ──
-  const handleStartSession = useCallback(() => {
-    tutor.connect();
-  }, [tutor]);
-
-  const handleEndSession = useCallback(() => {
-    setShowCamera(false);
-    setUploadedImages([]);
-    tutor.disconnect();
-  }, [tutor]);
-
   const handleToggleMic = useCallback(() => {
-    if (tutor.isListening) {
-      tutor.stopMicrophone();
-    } else {
-      tutor.startMicrophone();
-    }
+    tutor.isListening ? tutor.stopMicrophone() : tutor.startMicrophone();
   }, [tutor]);
 
   const handleToggleCamera = useCallback(() => {
@@ -170,7 +220,6 @@ export default function Home() {
       setShowCamera(false);
     } else {
       setShowCamera(true);
-      // Start webcam after render
       setTimeout(() => {
         if (videoElRef.current && canvasElRef.current) {
           tutor.startWebcam(videoElRef.current, canvasElRef.current);
@@ -179,450 +228,291 @@ export default function Home() {
     }
   }, [showCamera, tutor]);
 
-  const handleFileUpload = useCallback(
-    (e) => {
-      const files = Array.from(e.target.files);
-      files.forEach((file) => {
-        // Preview
-        const url = URL.createObjectURL(file);
-        setUploadedImages((prev) => [...prev, { url, name: file.name }]);
-        // Send to tutor
-        tutor.sendImage(file);
-      });
-      e.target.value = "";
-    },
-    [tutor]
-  );
+  const handleFileUpload = useCallback((e) => {
+    const files = Array.from(e.target.files);
+    files.forEach((file) => {
+      const url = URL.createObjectURL(file);
+      setUploadedImages((prev) => [...prev, { url, name: file.name }]);
+      tutor.sendImage(file);
+    });
+    e.target.value = "";
+  }, [tutor]);
 
-  const handleSendText = useCallback(
-    (e) => {
-      e.preventDefault();
-      if (!textInput.trim()) return;
-      tutor.sendText(textInput.trim());
-      tutor.setTranscripts((prev) => [
-        ...prev,
-        { role: "user", text: textInput.trim(), complete: true, ts: Date.now() },
-      ]);
-      setTextInput("");
-    },
-    [textInput, tutor]
-  );
+  const handleSendText = useCallback((e) => {
+    e.preventDefault();
+    if (!textInput.trim()) return;
+    tutor.sendText(textInput.trim());
+    tutor.setTranscripts((prev) => [
+      ...prev,
+      { role: "user", text: textInput.trim(), complete: true, ts: Date.now() },
+    ]);
+    setTextInput("");
+  }, [textInput, tutor]);
 
-  // ── Not Connected State ─────────────────────────────────────
-  if (!tutor.isConnected && !tutor.isConnecting) {
-    return (
-      <div className="min-h-screen flex items-center justify-center relative z-10">
-        <div className="text-center max-w-lg px-6 animate-slide-up">
-          {/* Logo */}
-          <div className="mb-8">
-            <div
-              className="w-20 h-20 mx-auto rounded-3xl flex items-center justify-center mb-6"
-              style={{
-                background: "linear-gradient(135deg, #06b6d4, #8b5cf6)",
-                boxShadow: "0 0 60px rgba(6, 182, 212, 0.3)",
-              }}
-            >
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="3" />
-                <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
-              </svg>
-            </div>
-            <h1 className="text-5xl font-extrabold gradient-text mb-3">
-              VisionTutor
-            </h1>
-            <p className="text-[var(--text-secondary)] text-base leading-relaxed">
-              Your AI study tutor that <strong className="text-[var(--text-primary)]">sees your notes</strong> and{" "}
-              <strong className="text-[var(--text-primary)]">hears your questions</strong>
-              <br />
-              — in real time.
-            </p>
-          </div>
+  const handleEndSession = useCallback(() => {
+    setShowCamera(false);
+    setUploadedImages([]);
+    tutor.disconnect();
+  }, [tutor]);
 
-          {/* Features */}
-          <div className="grid grid-cols-3 gap-3 mb-8">
-            {[
-              { icon: "🎤", label: "Voice Chat", desc: "Speak naturally" },
-              { icon: "📷", label: "See Notes", desc: "Show your work" },
-              { icon: "⚡", label: "Live Response", desc: "Real-time tutor" },
-            ].map((f, i) => (
-              <div
-                key={i}
-                className="glass-card p-4 text-center hover:border-[var(--accent-cyan)]/30 transition-colors"
-              >
-                <div className="text-2xl mb-2">{f.icon}</div>
-                <div className="text-xs font-semibold text-[var(--text-primary)] mb-1">
-                  {f.label}
-                </div>
-                <div className="text-[10px] text-[var(--text-muted)]">
-                  {f.desc}
-                </div>
-              </div>
-            ))}
-          </div>
+  const activeSubject = SUBJECTS.find((s) => s.id === tutor.currentSubject) || SUBJECTS[0];
 
-          {/* Start Button */}
-          <button
-            onClick={handleStartSession}
-            className="btn-primary text-base px-8 py-3 w-full"
-            style={{ fontSize: 16 }}
-          >
-            Start Tutoring Session
-          </button>
-
-          {tutor.error && (
-            <div className="mt-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
-              {tutor.error}
-            </div>
-          )}
-
-          <p className="text-[var(--text-muted)] text-[11px] mt-6">
-            Powered by Gemini Live API &middot; Gemini Live Agent Challenge
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  // ── Connecting State ──────────────────────────────────────────
-  if (tutor.isConnecting) {
-    return (
-      <div className="min-h-screen flex items-center justify-center relative z-10">
-        <div className="text-center animate-expand-in">
-          <div
-            className="w-16 h-16 mx-auto mb-6 rounded-full"
-            style={{
-              background: "linear-gradient(135deg, #06b6d4, #8b5cf6)",
-              animation: "pulse-glow 1.5s ease-in-out infinite",
-            }}
-          />
-          <p className="text-[var(--text-secondary)] text-sm">
-            Connecting to VisionTutor...
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  // ── Connected — Main Session UI ──────────────────────────────
   return (
-    <div className="h-screen flex flex-col relative z-10">
-      {/* ── Top Bar ── */}
-      <header className="flex items-center justify-between px-4 py-3 border-b border-[var(--border-subtle)]">
-        <div className="flex items-center gap-3">
-          <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center"
-            style={{
-              background: "linear-gradient(135deg, #06b6d4, #8b5cf6)",
-            }}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="3" />
-              <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2" />
-            </svg>
+    <div className="session-layout">
+      <AuroraBackground />
+
+      {/* ═══ TOP BAR ═══ */}
+      <header className="top-bar">
+        <div className="row gap-3">
+          <div style={{
+            width: 36, height: 36, borderRadius: 12,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            background: "var(--gradient-primary)",
+          }}>
+            <IconEye size={16} />
           </div>
           <div>
-            <h1 className="text-sm font-bold text-[var(--text-primary)]">
-              VisionTutor
-            </h1>
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[var(--accent-emerald)] inline-block" />
-              <span className="text-[11px] text-[var(--text-muted)]">
-                Session {tutor.sessionId}
-              </span>
+            <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)" }}>VisionTutor</div>
+            <div className="row gap-2">
+              <div className="status-live">
+                <span className="status-dot" style={{ backgroundColor: "var(--accent-mint)" }} />
+                <span style={{ color: "var(--accent-mint)" }}>LIVE</span>
+              </div>
+              <span style={{ color: "var(--text-dim)", fontSize: 10 }}>· {tutor.sessionId}</span>
             </div>
           </div>
         </div>
 
-        {/* Subject Selector */}
-        <div className="flex items-center gap-2 overflow-x-auto">
+        <div className="row gap-2">
           {SUBJECTS.map((s) => (
             <button
               key={s.id}
               onClick={() => tutor.changeSubject(s.id)}
-              className={`subject-chip whitespace-nowrap ${tutor.currentSubject === s.id ? "active" : ""}`}
-              style={
-                tutor.currentSubject === s.id
-                  ? {
-                      borderColor: s.color,
-                      color: s.color,
-                      background: `${s.color}15`,
-                    }
-                  : {}
-              }
+              className="chip"
+              style={tutor.currentSubject === s.id ? {
+                borderColor: s.color, color: s.color,
+                background: `${s.color}14`,
+                boxShadow: `0 0 16px ${s.color}20`,
+              } : {}}
             >
               {s.label}
             </button>
           ))}
         </div>
 
-        <button
-          onClick={handleEndSession}
-          className="btn-ghost flex items-center gap-2 text-[var(--accent-rose)]"
-          style={{ borderColor: "rgba(244, 63, 94, 0.3)" }}
-        >
-          <XIcon size={14} />
-          End
+        <button onClick={handleEndSession} className="btn-ghost"
+          style={{ color: "var(--accent-rose)", borderColor: "rgba(240,98,146,0.2)" }}>
+          <IconLogOut size={14} /> End
         </button>
       </header>
 
-      {/* ── Main Content ── */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* ── Left Panel: Camera / Upload ── */}
-        <aside className="w-80 border-r border-[var(--border-subtle)] flex flex-col bg-[var(--bg-secondary)]">
-          {/* Camera View */}
-          <div className="p-3">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
-                Visual Input
-              </span>
-              <div className="flex gap-2">
-                <button
-                  onClick={handleToggleCamera}
-                  className={`p-2 rounded-lg transition-colors ${
-                    showCamera
-                      ? "bg-[var(--accent-cyan)]/20 text-[var(--accent-cyan)]"
-                      : "bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-                  }`}
-                  title={showCamera ? "Stop Camera" : "Start Camera"}
-                >
-                  <CameraIcon size={16} />
+      {/* ═══ BODY ═══ */}
+      <div className="session-body">
+
+        {/* ── LEFT SIDEBAR ── */}
+        <aside className="sidebar">
+          <div style={{ padding: 16 }}>
+            <div className="row-between" style={{ marginBottom: 12 }}>
+              <div className="row gap-2">
+                <IconEye size={14} style={{ color: "var(--accent-gold)" }} />
+                <span style={{ fontSize: 11, fontWeight: 600, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                  Visual Input
+                </span>
+              </div>
+              <div className="row gap-2">
+                <button onClick={handleToggleCamera}
+                  className={`btn-icon ${showCamera ? "active" : ""}`}
+                  style={{ width: 36, height: 36, borderRadius: 10 }}
+                  title={showCamera ? "Stop Camera" : "Start Camera"}>
+                  <IconCamera size={15} />
                 </button>
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="p-2 rounded-lg bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
-                  title="Upload Image"
-                >
-                  <UploadIcon size={16} />
+                <button onClick={() => fileInputRef.current?.click()}
+                  className="btn-icon"
+                  style={{ width: 36, height: 36, borderRadius: 10 }}
+                  title="Upload Image">
+                  <IconUpload size={15} />
                 </button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={handleFileUpload}
-                  className="hidden"
-                />
+                <input ref={fileInputRef} type="file" accept="image/*" multiple
+                  onChange={handleFileUpload} className="hidden" />
               </div>
             </div>
 
-            {/* Camera Video */}
             {showCamera ? (
-              <div className="relative rounded-xl overflow-hidden bg-black aspect-square">
-                <video
-                  ref={videoElRef}
-                  className="w-full h-full object-cover mirror"
-                  playsInline
-                  muted
-                />
+              <div className="animate-scale-in" style={{ position: "relative", borderRadius: 16, overflow: "hidden", background: "#000", aspectRatio: "1" }}>
+                <video ref={videoElRef} className="mirror"
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  playsInline muted />
                 <canvas ref={canvasElRef} className="hidden" />
-                <div className="absolute top-2 left-2 flex items-center gap-1.5 bg-black/60 px-2 py-1 rounded-full">
-                  <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                  <span className="text-[10px] text-white font-medium">LIVE</span>
+                <div className="video-badge" style={{ top: 12, left: 12 }}>
+                  <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#f44", animation: "breathe 1.5s ease-in-out infinite" }} />
+                  LIVE
+                </div>
+                <div className="video-badge" style={{ bottom: 12, right: 12, fontWeight: 500, color: "var(--text-muted)" }}>
+                  1 fps · 768×768
                 </div>
               </div>
             ) : (
-              <div
-                className="rounded-xl border-2 border-dashed border-[var(--border-default)] flex flex-col items-center justify-center aspect-square cursor-pointer hover:border-[var(--accent-cyan)]/40 transition-colors"
-                onClick={handleToggleCamera}
-              >
-                <CameraIcon size={32} />
-                <span className="text-xs text-[var(--text-muted)] mt-2">
-                  Click to start camera
-                </span>
-                <span className="text-[10px] text-[var(--text-muted)] mt-1">
-                  or upload an image →
-                </span>
+              <div className="cam-placeholder" onClick={handleToggleCamera}>
+                <div style={{
+                  width: 56, height: 56, borderRadius: 16,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  marginBottom: 12, background: "var(--accent-indigo-dim)", color: "var(--accent-indigo)",
+                }}>
+                  <IconCamera size={24} />
+                </div>
+                <span style={{ fontSize: 14, fontWeight: 500, color: "var(--text-secondary)" }}>Start Camera</span>
+                <span style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 4 }}>Show your notes or homework</span>
               </div>
             )}
           </div>
 
           {/* Uploaded Images */}
           {uploadedImages.length > 0 && (
-            <div className="px-3 pb-3">
-              <span className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2 block">
-                Uploaded
+            <div style={{ padding: "0 16px 12px" }}>
+              <span style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.1em", display: "block", marginBottom: 8 }}>
+                Uploaded ({uploadedImages.length})
               </span>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="upload-grid">
                 {uploadedImages.map((img, i) => (
-                  <div
-                    key={i}
-                    className="aspect-square rounded-lg overflow-hidden border border-[var(--border-subtle)]"
-                  >
-                    <img
-                      src={img.url}
-                      alt={img.name}
-                      className="w-full h-full object-cover"
-                    />
+                  <div key={i} className="upload-thumb">
+                    <img src={img.url} alt={img.name} />
                   </div>
                 ))}
               </div>
             </div>
           )}
 
-          {/* Status */}
-          <div className="mt-auto p-3 border-t border-[var(--border-subtle)]">
-            <div className="glass-card p-3 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] text-[var(--text-muted)]">
-                  Microphone
-                </span>
-                <div className="flex items-center gap-2">
-                  <WaveformVisualizer
-                    isActive={tutor.isListening}
-                    color="var(--accent-cyan)"
-                  />
-                  <span
-                    className={`text-[11px] font-medium ${
-                      tutor.isListening
-                        ? "text-[var(--accent-emerald)]"
-                        : "text-[var(--text-muted)]"
-                    }`}
-                  >
+          {/* Status Panel */}
+          <div style={{ marginTop: "auto", padding: 16 }}>
+            <div className="glass-sm">
+              <div className="stat-box">
+                <div className="row gap-2">
+                  <IconMic size={13} style={{ color: tutor.isListening ? "var(--accent-indigo)" : "var(--text-dim)" }} />
+                  <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 500 }}>Microphone</span>
+                </div>
+                <div className="row gap-2">
+                  <Waveform active={tutor.isListening} color="var(--accent-indigo)" />
+                  <span style={{ fontSize: 11, fontWeight: 600, color: tutor.isListening ? "var(--accent-mint)" : "var(--text-dim)" }}>
                     {tutor.isListening ? "Active" : "Off"}
                   </span>
                 </div>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] text-[var(--text-muted)]">
-                  Tutor
-                </span>
-                <div className="flex items-center gap-2">
-                  <WaveformVisualizer
-                    isActive={tutor.isTutorSpeaking}
-                    color="var(--accent-violet)"
-                  />
-                  <span
-                    className={`text-[11px] font-medium ${
-                      tutor.isTutorSpeaking
-                        ? "text-[var(--accent-violet)]"
-                        : "text-[var(--text-muted)]"
-                    }`}
-                  >
-                    {tutor.isTutorSpeaking ? "Speaking..." : "Idle"}
+              <div className="stat-box">
+                <div className="row gap-2">
+                  <IconSparkles size={13} style={{ color: tutor.isTutorSpeaking ? "var(--accent-gold)" : "var(--text-dim)" }} />
+                  <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 500 }}>Tutor</span>
+                </div>
+                <div className="row gap-2">
+                  <Waveform active={tutor.isTutorSpeaking} color="var(--accent-gold)" />
+                  <span style={{ fontSize: 11, fontWeight: 600, color: tutor.isTutorSpeaking ? "var(--accent-gold)" : "var(--text-dim)" }}>
+                    {tutor.isTutorSpeaking ? "Speaking" : "Idle"}
                   </span>
                 </div>
+              </div>
+              <div className="stat-box">
+                <div className="row gap-2">
+                  <IconBookOpen size={13} style={{ color: activeSubject.color }} />
+                  <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 500 }}>Subject</span>
+                </div>
+                <span style={{ fontSize: 11, fontWeight: 600, color: activeSubject.color }}>{activeSubject.label}</span>
               </div>
             </div>
           </div>
         </aside>
 
-        {/* ── Right Panel: Chat / Transcript ── */}
-        <main className="flex-1 flex flex-col">
-          {/* Transcript Area */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-4 transcript-scroll">
+        {/* ── RIGHT: CHAT PANEL ── */}
+        <main className="chat-panel">
+          <div className="chat-messages">
             {tutor.transcripts.length === 0 && (
-              <div className="h-full flex flex-col items-center justify-center text-center">
-                <div
-                  className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, rgba(6,182,212,0.1), rgba(139,92,246,0.1))",
-                    border: "1px solid var(--border-subtle)",
-                  }}
-                >
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                  </svg>
+              <div className="chat-empty animate-fade-up">
+                <div style={{
+                  width: 80, height: 80, borderRadius: 24,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  marginBottom: 20, background: "rgba(124,107,240,0.08)",
+                  border: "1px solid var(--border-subtle)", color: "var(--text-muted)",
+                }}>
+                  <IconMessageCircle size={34} />
                 </div>
-                <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
-                  Ready to Tutor
+                <h3 style={{ fontSize: 20, fontWeight: 700, color: "var(--text-primary)", marginBottom: 8 }}>
+                  Ready to Learn
                 </h3>
-                <p className="text-sm text-[var(--text-muted)] max-w-sm leading-relaxed">
-                  Turn on your microphone and start asking questions.
-                  <br />
-                  You can also show your notes via camera or upload an image.
+                <p style={{ fontSize: 14, color: "var(--text-muted)", maxWidth: 360, lineHeight: 1.7, marginBottom: 32 }}>
+                  Start your mic and ask a question. You can also share your notes via camera or upload an image.
                 </p>
-                <div className="flex gap-3 mt-6">
-                  <button
-                    onClick={handleToggleMic}
-                    className="btn-primary flex items-center gap-2"
-                  >
-                    <MicIcon size={16} />
-                    Start Talking
+                <div className="row gap-3" style={{ justifyContent: "center" }}>
+                  <button onClick={handleToggleMic} className="btn-primary" style={{ width: "auto", padding: "12px 24px" }}>
+                    <IconMic size={16} /> Start Talking
                   </button>
-                  <button
-                    onClick={handleToggleCamera}
-                    className="btn-ghost flex items-center gap-2"
-                  >
-                    <CameraIcon size={16} />
-                    Show Notes
+                  <button onClick={handleToggleCamera} className="btn-ghost">
+                    <IconCamera size={16} /> Show Notes
                   </button>
                 </div>
               </div>
             )}
 
             {tutor.transcripts.map((t, i) => (
-              <TranscriptMessage key={i} role={t.role} text={t.text} />
+              <div key={i} className={`msg-row ${t.role === "user" ? "user" : ""}`}>
+                <div className={`avatar ${t.role === "model" ? "avatar-model" : "avatar-user"}`}>
+                  {t.role === "model" ? "VT" : "You"}
+                </div>
+                <div className={`msg-bubble ${t.role === "model" ? "msg-model" : "msg-user"}`}>
+                  {t.text}
+                </div>
+              </div>
             ))}
+
+            {tutor.isTutorSpeaking && tutor.transcripts.length > 0 && (
+              <div className="msg-row">
+                <div className="avatar avatar-model">VT</div>
+                <TypingIndicator />
+              </div>
+            )}
+
             <div ref={transcriptEndRef} />
           </div>
 
-          {/* Error Banner */}
+          {/* Error */}
           {tutor.error && (
-            <div className="mx-6 mb-2 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center justify-between">
-              <span>{tutor.error}</span>
-              <button
-                onClick={() => tutor.setError(null)}
-                className="text-red-400 hover:text-red-300"
-              >
-                <XIcon size={14} />
+            <div className="error-banner">
+              <span style={{ fontSize: 14, color: "var(--accent-rose)" }}>{tutor.error}</span>
+              <button onClick={() => tutor.setError(null)}
+                style={{ marginLeft: 12, padding: 4, borderRadius: 8, border: "none", background: "transparent", color: "var(--accent-rose)", cursor: "pointer" }}>
+                <IconX size={14} />
               </button>
             </div>
           )}
 
-          {/* ── Bottom Control Bar ── */}
-          <div className="border-t border-[var(--border-subtle)] p-4">
-            <div className="flex items-center gap-3">
-              {/* Mic Toggle */}
-              <button
-                onClick={handleToggleMic}
-                className={`p-3 rounded-2xl transition-all ${
-                  tutor.isListening
-                    ? "bg-[var(--accent-cyan)] text-white shadow-lg"
-                    : "bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-                }`}
-                style={
-                  tutor.isListening
-                    ? { boxShadow: "0 0 24px rgba(6, 182, 212, 0.4)" }
-                    : {}
-                }
-                title={tutor.isListening ? "Mute" : "Unmute"}
-              >
-                {tutor.isListening ? (
-                  <MicIcon size={20} />
-                ) : (
-                  <MicOffIcon size={20} />
-                )}
-              </button>
-
-              {/* Text Input */}
-              <form
-                onSubmit={handleSendText}
-                className="flex-1 flex items-center gap-2 bg-[var(--bg-elevated)] rounded-2xl px-4 py-2 border border-[var(--border-subtle)] focus-within:border-[var(--accent-cyan)]/50 transition-colors"
-              >
-                <input
-                  type="text"
-                  value={textInput}
-                  onChange={(e) => setTextInput(e.target.value)}
-                  placeholder="Type a question..."
-                  className="flex-1 bg-transparent text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none"
-                />
-                <button
-                  type="submit"
-                  disabled={!textInput.trim()}
-                  className="p-1.5 rounded-lg text-[var(--accent-cyan)] disabled:text-[var(--text-muted)] hover:bg-[var(--accent-cyan)]/10 transition-colors disabled:hover:bg-transparent"
-                >
-                  <SendIcon size={16} />
+          {/* ═══ BOTTOM BAR ═══ */}
+          <div className="bottom-bar">
+            <div className="row gap-3">
+              <div style={{ position: "relative" }}>
+                <button onClick={handleToggleMic}
+                  className={`mic-btn ${tutor.isListening ? "listening" : ""}`}
+                  title={tutor.isListening ? "Mute Mic" : "Unmute Mic"}>
+                  {tutor.isListening ? <IconMic size={22} /> : <IconMicOff size={22} />}
+                  {tutor.isListening && <span className="mic-ripple" />}
                 </button>
+              </div>
+
+              <form onSubmit={handleSendText} className="flex-1">
+                <div className="input-bar">
+                  <input type="text" value={textInput}
+                    onChange={(e) => setTextInput(e.target.value)}
+                    placeholder="Type a question..." />
+                  <button type="submit" disabled={!textInput.trim()}
+                    className="btn-icon"
+                    style={{
+                      width: 36, height: 36, borderRadius: 10, border: "none",
+                      background: textInput.trim() ? "var(--gradient-primary)" : "transparent",
+                      color: textInput.trim() ? "var(--bg-base)" : "var(--text-dim)",
+                    }}>
+                    <IconSend size={15} />
+                  </button>
+                </div>
               </form>
 
-              {/* Upload quick button */}
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="p-3 rounded-2xl bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
-                title="Upload Image"
-              >
-                <UploadIcon size={20} />
+              <button onClick={() => fileInputRef.current?.click()} className="btn-icon" title="Upload Image">
+                <IconUpload size={18} />
               </button>
             </div>
           </div>
@@ -630,4 +520,20 @@ export default function Home() {
       </div>
     </div>
   );
+}
+
+/* ══════════════════════════════════════════════════════
+   Root Page
+   ══════════════════════════════════════════════════════ */
+
+export default function Home() {
+  const tutor = useVisionTutor();
+
+  if (!tutor.isConnected && !tutor.isConnecting) {
+    return <LandingPage onStart={tutor.connect} error={tutor.error} />;
+  }
+  if (tutor.isConnecting) {
+    return <ConnectingScreen />;
+  }
+  return <SessionUI tutor={tutor} />;
 }
