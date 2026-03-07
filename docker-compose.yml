@@ -1,0 +1,42 @@
+# ============================================
+# VisionTutor - Docker Compose
+# Runs the full stack locally with one command
+# ============================================
+# Usage:
+#   docker-compose up --build
+# ============================================
+
+version: "3.8"
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - DEBUG=true
+      - ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3001
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        - NEXT_PUBLIC_BACKEND_WS_URL=ws://localhost:8000/ws/session
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_BACKEND_WS_URL=ws://localhost:8000/ws/session
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
