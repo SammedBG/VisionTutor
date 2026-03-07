@@ -20,12 +20,21 @@ We built **VisionTutor** to replicate the experience of sitting next to a real h
 
 VisionTutor is a next-generation study application that moves far beyond standard text-based chat. By leveraging the new **Gemini Live API (WebSockets)** via the **Google GenAI Python SDK (v1.5.0)**, VisionTutor acts as a real-time multimodal conversational agent.
 
-* **Live Agents Category 🗣️**: VisionTutor is built specifically for this track. It is a customized tutor that "sees" your homework and handles conversational interruptions gracefully.
-* **Multimodal Input**: Simultaneously accepts high-frequency PCM audio from your microphone and video frames from your webcam.
-* **"Show and Tell"**: Point your camera at handwritten math homework, physics diagrams, or upload a textbook screenshot while talking naturally.
-* **Instant Voice Response**: The tutor speaks back using Gemini's native voice (`Kore` persona) with near-zero latency.
-* **Natural Interruption**: You can barge-in and interrupt the tutor mid-sentence. The system detects "interrupted" signals from the server and instantly halts the audio playback queue.
-* **Subject Context Alignment**: Switch between core subjects (Maths, Physics, CS) to inject dynamic system instructions for tailored tutoring styles (e.g., Socratic method).
+### 5 Core Features
+
+| # | Feature | Description |
+|---|---------|-------------|
+| 1 | **🧠 Socratic Mode** | Guides you to the answer with leading questions instead of giving it away directly. Toggle it on in the UI. |
+| 2 | **🔍 Mistake Detection** | Point your camera at your written work and click "Check My Work" — the AI scans every step and pinpoints exactly where you went wrong. |
+| 3 | **❓ Follow-up Quiz** | After explaining any concept, the tutor automatically quizzes you verbally to lock in understanding. Always active. |
+| 4 | **👣 Step-by-Step Walkthrough** | Solves problems one step at a time, pausing for your confirmation before continuing. Showcases natural barge-in. |
+| 5 | **📝 Exam Mode** | Full mock exam experience — Gemini reads questions, you answer verbally, it scores you at the end with detailed feedback. |
+
+### Other Capabilities
+* **Multimodal Input**: Simultaneously accepts PCM audio from your microphone and video frames from your webcam.
+* **Instant Voice Response**: The tutor speaks back using Gemini's native voice (`Kore` persona).
+* **Natural Interruption**: Barge-in mid-sentence. The system detects "interrupted" signals and halts audio playback instantly.
+* **Subject Context**: Switch between Maths, Physics, Chemistry, CS, Biology for tailored tutoring styles.
 
 ---
 

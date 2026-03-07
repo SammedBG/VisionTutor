@@ -18,6 +18,7 @@ export function useVisionTutor() {
   const [transcripts, setTranscripts] = useState([]);
   const [error, setError] = useState(null);
   const [currentSubject, setCurrentSubject] = useState("general");
+  const [tutorMode, setTutorMode] = useState("normal");
 
   const wsRef = useRef(null);
   const audioContextRef = useRef(null);
@@ -157,6 +158,11 @@ export function useVisionTutor() {
           case "pong":
             break;
 
+          case "mode_changed":
+            setTutorMode(msg.mode);
+            setSessionId(msg.sessionId);
+            break;
+
           default:
             console.warn("Unknown message type:", msg.type);
         }
@@ -292,15 +298,43 @@ export function useVisionTutor() {
     if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
 
     const reader = new FileReader();
-    reader.onload = () => {
-      const base64 = reader.result.split(",")[1];
-      wsRef.current.send(
-        JSON.stringify({
-          type: "image",
-          data: base64,
-          mimeType: file.type || "image/jpeg",
-        })
-      );
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const MAX_SIZE = 1024;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_SIZE) {
+            height *= MAX_SIZE / width;
+            width = MAX_SIZE;
+          }
+        } else {
+          if (height > MAX_SIZE) {
+            width *= MAX_SIZE / height;
+            height = MAX_SIZE;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.8);
+        const base64 = dataUrl.split(",")[1];
+
+        wsRef.current.send(
+          JSON.stringify({
+            type: "image",
+            data: base64,
+            mimeType: "image/jpeg",
+          })
+        );
+      };
+      img.src = e.target.result;
     };
     reader.readAsDataURL(file);
   }, []);
@@ -317,6 +351,50 @@ export function useVisionTutor() {
       setCurrentSubject(subject);
       if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
         wsRef.current.send(JSON.stringify({ type: "config", subject }));
+      }
+    },
+    []
+  );
+
+  // ── Mode Change (Normal / Socratic / Exam) ──
+  const changeMode = useCallback(
+    (mode) => {
+      setTutorMode(mode);
+      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+        wsRef.current.send(JSON.stringify({ type: "mode", mode }));
+      }
+    },
+    []
+  );
+
+  // ── Check My Work (Feature 2: Mistake Detection) ──
+  const checkWork = useCallback(
+    (optionalImageFile) => {
+      if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
+
+      if (optionalImageFile) {
+        // If they passed a file, compress and send it with the check_work message
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            const MAX_SIZE = 1024;
+            let w = img.width, h = img.height;
+            if (w > h) { if (w > MAX_SIZE) { h *= MAX_SIZE / w; w = MAX_SIZE; } }
+            else { if (h > MAX_SIZE) { w *= MAX_SIZE / h; h = MAX_SIZE; } }
+            canvas.width = w;
+            canvas.height = h;
+            canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+            const base64 = canvas.toDataURL("image/jpeg", 0.8).split(",")[1];
+            wsRef.current.send(JSON.stringify({ type: "check_work", data: base64, mimeType: "image/jpeg" }));
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(optionalImageFile);
+      } else {
+        // No image — just send the check_work text prompt (works if camera is already feeding frames)
+        wsRef.current.send(JSON.stringify({ type: "check_work" }));
       }
     },
     []
@@ -383,6 +461,7 @@ export function useVisionTutor() {
     transcripts,
     error,
     currentSubject,
+    tutorMode,
 
     // Actions
     connect,
@@ -394,6 +473,8 @@ export function useVisionTutor() {
     sendImage,
     sendText,
     changeSubject,
+    changeMode,
+    checkWork,
     setTranscripts,
     setError,
   };

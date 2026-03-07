@@ -20,7 +20,7 @@ from typing import Optional, Callable, Awaitable
 from google import genai
 from google.genai import types
 
-from .config import gemini_config, TUTOR_SYSTEM_PROMPT
+from .config import gemini_config, get_system_prompt
 
 logger = logging.getLogger("visiontutor.gemini")
 
@@ -70,18 +70,27 @@ class GeminiSession:
         self._reconnect_count = 0
         self._created_at = time.time()
 
-    async def connect(self) -> None:
-        """Open a connection to the Gemini Live API."""
-        logger.info(f"[{self.session_id}] Connecting to Gemini Live API...")
+    async def connect(self, mode: str = "normal") -> None:
+        """Open a connection to the Gemini Live API.
+        
+        Args:
+            mode: Tutoring mode - 'normal', 'socratic', or 'exam'
+        """
+        logger.info(f"[{self.session_id}] Connecting to Gemini Live API (mode={mode})...")
+
+        self._current_mode = mode
 
         # Initialize the GenAI client
         self._client = genai.Client(api_key=gemini_config.api_key)
+
+        # Build system prompt based on active mode
+        system_prompt = get_system_prompt(mode)
 
         # Configure the Live session
         config = types.LiveConnectConfig(
             response_modalities=["AUDIO"],
             system_instruction=types.Content(
-                parts=[types.Part(text=TUTOR_SYSTEM_PROMPT)]
+                parts=[types.Part(text=system_prompt)]
             ),
             speech_config=types.SpeechConfig(
                 voice_config=types.VoiceConfig(

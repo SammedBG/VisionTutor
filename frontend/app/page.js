@@ -40,6 +40,9 @@ function IconBookOpen({ size = 20 }) {
 function IconMessageCircle({ size = 28 }) {
   return (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg>);
 }
+function IconSearch({ size = 20 }) {
+  return (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>);
+}
 
 /* ══════════════════════════════════════════════════════
    Data
@@ -52,6 +55,12 @@ const SUBJECTS = [
   { id: "chemistry", label: "Chemistry", color: "#ff7e67" },
   { id: "computer_science", label: "CS", color: "#4fd1a8" },
   { id: "biology", label: "Biology", color: "#f06292" },
+];
+
+const MODES = [
+  { id: "normal", label: "Normal", color: "var(--accent-mint)", desc: "Standard tutoring" },
+  { id: "socratic", label: "Socratic", color: "var(--accent-indigo)", desc: "Guided discovery" },
+  { id: "exam", label: "Exam", color: "var(--accent-coral)", desc: "Mock test mode" },
 ];
 
 /* ══════════════════════════════════════════════════════
@@ -126,16 +135,18 @@ function LandingPage({ onStart, error }) {
         </div>
 
         {/* Feature Cards */}
-        <div className="feature-grid">
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12, marginBottom: 40, textAlign: "left" }}>
           {[
-            { icon: <IconMic size={24} />, title: "Voice Chat", desc: "Speak naturally, interrupt anytime", color: "var(--accent-indigo)", bg: "var(--accent-indigo-dim)" },
-            { icon: <IconEye size={24} />, title: "Vision Input", desc: "Show handwritten notes via webcam", color: "var(--accent-gold)", bg: "var(--accent-gold-dim)" },
-            { icon: <IconSparkles size={24} />, title: "Live Response", desc: "Real-time voice + text tutor", color: "var(--accent-mint)", bg: "var(--accent-mint-dim)" },
+            { icon: <IconMessageCircle size={20} />, title: "Socratic Mode", desc: "Guides you with questions", color: "var(--accent-indigo)" },
+            { icon: <IconEye size={20} />, title: "Mistake Detection", desc: "Spots logic/math errors", color: "var(--accent-rose)" },
+            { icon: <IconMic size={20} />, title: "Follow-up Quiz", desc: "Verbally quizzes you", color: "var(--accent-mint)" },
+            { icon: <IconBookOpen size={20} />, title: "Step-by-Step", desc: "Walks through slowly", color: "var(--accent-gold)" },
+            { icon: <IconSparkles size={20} />, title: "Mock Exam", desc: "Timed audio exams", color: "var(--accent-sky)" },
           ].map((f, i) => (
-            <div key={i} className="glass">
-              <div className="feature-icon" style={{ background: f.bg, color: f.color }}>{f.icon}</div>
-              <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)", marginBottom: 4 }}>{f.title}</div>
-              <div style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.5 }}>{f.desc}</div>
+            <div key={i} className="glass-sm" style={{ padding: 16 }}>
+              <div style={{ color: f.color, marginBottom: 8 }}>{f.icon}</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)", marginBottom: 4 }}>{f.title}</div>
+              <div style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.4 }}>{f.desc}</div>
             </div>
           ))}
         </div>
@@ -283,6 +294,26 @@ function SessionUI({ tutor }) {
           </div>
         </div>
 
+        {/* Mode Toggles */}
+        <div className="row gap-2">
+          {MODES.map((m) => (
+            <button
+              key={m.id}
+              onClick={() => tutor.changeMode(m.id)}
+              className="chip"
+              style={tutor.tutorMode === m.id ? {
+                borderColor: m.color, color: m.color,
+                background: `color-mix(in srgb, ${m.color} 12%, transparent)`,
+                boxShadow: `0 0 16px color-mix(in srgb, ${m.color} 15%, transparent)`,
+                fontWeight: 700,
+              } : {}}
+            >
+              {m.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Subject + End */}
         <div className="row gap-2">
           {SUBJECTS.map((s) => (
             <button
@@ -298,12 +329,11 @@ function SessionUI({ tutor }) {
               {s.label}
             </button>
           ))}
+          <button onClick={handleEndSession} className="btn-ghost"
+            style={{ color: "var(--accent-rose)", borderColor: "rgba(240,98,146,0.2)" }}>
+            <IconLogOut size={14} /> End
+          </button>
         </div>
-
-        <button onClick={handleEndSession} className="btn-ghost"
-          style={{ color: "var(--accent-rose)", borderColor: "rgba(240,98,146,0.2)" }}>
-          <IconLogOut size={14} /> End
-        </button>
       </header>
 
       {/* ═══ BODY ═══ */}
@@ -364,6 +394,22 @@ function SessionUI({ tutor }) {
                 <span style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 4 }}>Show your notes or homework</span>
               </div>
             )}
+          </div>
+
+          {/* Check My Work Button (Feature 2) */}
+          <div style={{ padding: "0 16px 12px" }}>
+            <button
+              onClick={() => tutor.checkWork()}
+              className="btn-primary"
+              style={{
+                background: "var(--gradient-warm)",
+                padding: "10px 16px",
+                fontSize: 13,
+                borderRadius: 12,
+              }}
+            >
+              <IconSearch size={15} /> Check My Work
+            </button>
           </div>
 
           {/* Uploaded Images */}
