@@ -29,42 +29,14 @@ export function useVisionTutor() {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
 
-  // ── Audio Playback (PCM 24kHz from Gemini) ──
-  // Use a ref for processPlaybackQueue to avoid circular dependency
-  const processPlaybackQueueRef = useRef(null);
+  const nextPlayTimeRef = useRef(0);
 
-  processPlaybackQueueRef.current = () => {
-    if (isPlayingRef.current || playbackQueueRef.current.length === 0) return;
-
-    isPlayingRef.current = true;
-    setIsTutorSpeaking(true);
-
-    const buffer = playbackQueueRef.current.shift();
-    const ctx = audioContextRef.current;
-    if (!ctx) return;
-
-    
-    const source = ctx.createBufferSource();
-    source.buffer = buffer;
-    source.connect(ctx.destination);
-
-    source.onended = () => {
-      isPlayingRef.current = false;
-      if (playbackQueueRef.current.length > 0) {
-        processPlaybackQueueRef.current?.();
-      } else {
-        setIsTutorSpeaking(false);
-      }
-    };
-
-    source.start();
-  };
-
-  const playAudioChunk = useCallback(async (base64Audio) => {
+  const playAudioChunk = useCallback((base64Audio) => {
     if (!audioContextRef.current) {
       audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)({
         sampleRate: 24000,
       });
+      nextPlayTimeRef.current = audioContextRef.current.currentTime;
     }
 
     const ctx = audioContextRef.current;
@@ -87,15 +59,37 @@ export function useVisionTutor() {
     const audioBuffer = ctx.createBuffer(1, float32.length, 24000);
     audioBuffer.getChannelData(0).set(float32);
 
-    // Queue for playback
-    playbackQueueRef.current.push(audioBuffer);
-    processPlaybackQueueRef.current?.();
+    // Schedule playback seamlessly
+    const source = ctx.createBufferSource();
+    source.buffer = audioBuffer;
+    source.connect(ctx.destination);
+
+    // Start playback right after the previous chunk ends, or now if we lagged
+    const now = ctx.currentTime;
+    if (nextPlayTimeRef.current < now) {
+      nextPlayTimeRef.current = now;
+    }
+
+    source.start(nextPlayTimeRef.current);
+    nextPlayTimeRef.current += audioBuffer.duration;
+
+    setIsTutorSpeaking(true);
+
+    source.onended = () => {
+      // If we've reached the end of the scheduled audio
+      if (ctx.currentTime >= nextPlayTimeRef.current - 0.1) {
+        setIsTutorSpeaking(false);
+      }
+    };
   }, []);
 
   const flushPlayback = useCallback(() => {
-    playbackQueueRef.current = [];
-    isPlayingRef.current = false;
     setIsTutorSpeaking(false);
+    nextPlayTimeRef.current = 0;
+    if (audioContextRef.current) {
+      audioContextRef.current.close();
+      audioContextRef.current = null;
+    }
   }, []);
 
   // ── WebSocket Message Handler ──
