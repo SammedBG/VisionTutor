@@ -43,6 +43,7 @@ class GeminiSession:
         on_transcript: Optional[Callable[[str, str], Awaitable[None]]] = None,
         on_interrupted: Optional[Callable[[], Awaitable[None]]] = None,
         on_turn_complete: Optional[Callable[[], Awaitable[None]]] = None,
+        on_session_error: Optional[Callable[[str], Awaitable[None]]] = None,
     ):
         """
         Args:
@@ -50,17 +51,21 @@ class GeminiSession:
             on_transcript: callback(text, role) -> called with transcription text
             on_interrupted: callback() -> called when user interrupts (barge-in)
             on_turn_complete: callback() -> called when model finishes a turn
+            on_session_error: callback(error_msg) -> called on session error
         """
         self.session_id = str(uuid.uuid4())[:8]
         self.on_audio = on_audio
         self.on_transcript = on_transcript
         self.on_interrupted = on_interrupted
         self.on_turn_complete = on_turn_complete
+        self.on_session_error = on_session_error
 
         self._client: Optional[genai.Client] = None
         self._session = None
         self._receive_task: Optional[asyncio.Task] = None
         self._is_active = False
+        self._auto_reconnect = True
+        self._reconnect_count = 0
         self._created_at = time.time()
 
     async def connect(self) -> None:
@@ -243,14 +248,68 @@ class GeminiSession:
             logger.info(f"[{self.session_id}] Receive loop cancelled")
         except Exception as e:
             logger.error(f"[{self.session_id}] Receive loop error: {e}", exc_info=True)
+            # Attempt auto-reconnect if the session died unexpectedly
+            if self._is_active and self._auto_reconnect:
+                logger.info(f"[{self.session_id}] Attempting auto-reconnect...")
+                try:
+                    await self._reconnect()
+                    return  # _reconnect starts a new receive loop
+                except Exception as re:
+                    logger.error(f"[{self.session_id}] Reconnect failed: {re}")
+            if self.on_session_error:
+                await self.on_session_error(str(e))
         finally:
             self._is_active = False
             logger.info(f"[{self.session_id}] Receive loop ended")
+
+    async def _reconnect(self) -> None:
+        """Reconnect to Gemini Live API after a session drop."""
+        # Close old session
+        if self._session:
+            try:
+                await self._session.__aexit__(None, None, None)
+            except Exception:
+                pass
+            self._session = None
+
+        # Reopen
+        config = {
+            "response_modalities": ["AUDIO"],
+            "system_instruction": TUTOR_SYSTEM_PROMPT,
+            "speech_config": {
+                "voice_config": {
+                    "prebuilt_voice_config": {
+                        "voice_name": gemini_config.voice_name
+                    }
+                }
+            },
+            "input_audio_transcription": {},
+            "output_audio_transcription": {},
+        }
+
+        self._session = await self._client.aio.live.connect(
+            model=gemini_config.model,
+            config=config,
+        ).__aenter__()
+
+        self._is_active = True
+        self._reconnect_count += 1
+        logger.info(
+            f"[{self.session_id}] Reconnected successfully "
+            f"(reconnect #{self._reconnect_count})"
+        )
+
+        # Restart receive loop
+        self._receive_task = asyncio.create_task(
+            self._receive_loop(),
+            name=f"gemini-receive-{self.session_id}-r{self._reconnect_count}"
+        )
 
     async def close(self) -> None:
         """Gracefully close the Gemini session."""
         logger.info(f"[{self.session_id}] Closing session...")
         self._is_active = False
+        self._auto_reconnect = False  # Prevent reconnect during close
 
         if self._receive_task and not self._receive_task.done():
             self._receive_task.cancel()
@@ -268,7 +327,8 @@ class GeminiSession:
 
         elapsed = time.time() - self._created_at
         logger.info(
-            f"[{self.session_id}] Session closed (duration: {elapsed:.1f}s)"
+            f"[{self.session_id}] Session closed "
+            f"(duration: {elapsed:.1f}s, reconnects: {self._reconnect_count})"
         )
 
     @property
@@ -278,3 +338,4 @@ class GeminiSession:
     @property
     def duration(self) -> float:
         return time.time() - self._created_at
+

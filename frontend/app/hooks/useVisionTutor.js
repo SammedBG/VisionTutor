@@ -30,6 +30,35 @@ export function useVisionTutor() {
   const canvasRef = useRef(null);
 
   // ── Audio Playback (PCM 24kHz from Gemini) ──
+  // Use a ref for processPlaybackQueue to avoid circular dependency
+  const processPlaybackQueueRef = useRef(null);
+
+  processPlaybackQueueRef.current = () => {
+    if (isPlayingRef.current || playbackQueueRef.current.length === 0) return;
+
+    isPlayingRef.current = true;
+    setIsTutorSpeaking(true);
+
+    const buffer = playbackQueueRef.current.shift();
+    const ctx = audioContextRef.current;
+    if (!ctx) return;
+
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(ctx.destination);
+
+    source.onended = () => {
+      isPlayingRef.current = false;
+      if (playbackQueueRef.current.length > 0) {
+        processPlaybackQueueRef.current?.();
+      } else {
+        setIsTutorSpeaking(false);
+      }
+    };
+
+    source.start();
+  };
+
   const playAudioChunk = useCallback(async (base64Audio) => {
     if (!audioContextRef.current) {
       audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)({
@@ -59,31 +88,7 @@ export function useVisionTutor() {
 
     // Queue for playback
     playbackQueueRef.current.push(audioBuffer);
-    processPlaybackQueue();
-  }, []);
-
-  const processPlaybackQueue = useCallback(() => {
-    if (isPlayingRef.current || playbackQueueRef.current.length === 0) return;
-
-    isPlayingRef.current = true;
-    setIsTutorSpeaking(true);
-
-    const buffer = playbackQueueRef.current.shift();
-    const ctx = audioContextRef.current;
-    const source = ctx.createBufferSource();
-    source.buffer = buffer;
-    source.connect(ctx.destination);
-
-    source.onended = () => {
-      isPlayingRef.current = false;
-      if (playbackQueueRef.current.length > 0) {
-        processPlaybackQueue();
-      } else {
-        setIsTutorSpeaking(false);
-      }
-    };
-
-    source.start();
+    processPlaybackQueueRef.current?.();
   }, []);
 
   const flushPlayback = useCallback(() => {
