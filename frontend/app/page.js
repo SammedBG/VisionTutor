@@ -400,12 +400,17 @@ function SessionUI({ tutor }) {
           <div style={{ padding: "0 16px 12px" }}>
             <button
               onClick={() => tutor.checkWork()}
+              disabled={!showCamera && uploadedImages.length === 0}
               className="btn-primary"
+              title={(!showCamera && uploadedImages.length === 0) ? "Start camera or upload an image first" : "Check My Work"}
               style={{
-                background: "var(--gradient-warm)",
+                background: (!showCamera && uploadedImages.length === 0) ? "rgba(255, 255, 255, 0.05)" : "var(--gradient-warm)",
+                color: (!showCamera && uploadedImages.length === 0) ? "var(--text-dim)" : "var(--bg-base)",
+                cursor: (!showCamera && uploadedImages.length === 0) ? "not-allowed" : "pointer",
                 padding: "10px 16px",
                 fontSize: 13,
                 borderRadius: 12,
+                opacity: (!showCamera && uploadedImages.length === 0) ? 0.6 : 1,
               }}
             >
               <IconSearch size={15} /> Check My Work
