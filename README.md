@@ -33,7 +33,7 @@ VisionTutor is a next-generation study application that moves far beyond standar
 
 ```mermaid
 flowchart TD
-    subgraph Frontend [Next.js Client (React)]
+    subgraph Frontend ["Next.js Client (React)"]
         UI[Minimal Glassmorphic UI]
         Mic[Microphone PCM 16kHz]
         Cam[Webcam / Upload Frames 1fps]
@@ -43,7 +43,7 @@ flowchart TD
         UI <-->|WebSocket: JSON + Base64| API_Gateway
     end
 
-    subgraph Backend [Google Cloud Run (Python / FastAPI)]
+    subgraph Backend ["Google Cloud Run (Python / FastAPI)"]
         API_Gateway[WebSocket Handler]
         SessionMgr[GeminiSession Async Context]
         
