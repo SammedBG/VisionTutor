@@ -121,10 +121,14 @@ class GeminiSession:
             return
 
         try:
-            await self._session.send_realtime_input(
-                audio=types.Blob(
-                    data=pcm_data,
-                    mime_type=f"audio/pcm;rate={gemini_config.audio_send_sample_rate}"
+            await self._session.send(
+                input=types.LiveClientRealtimeInput(
+                    media_chunks=[
+                        types.Blob(
+                            data=pcm_data,
+                            mime_type=f"audio/pcm;rate={gemini_config.audio_send_sample_rate}"
+                        )
+                    ]
                 )
             )
         except Exception as e:
@@ -145,10 +149,14 @@ class GeminiSession:
             return
 
         try:
-            await self._session.send_realtime_input(
-                video=types.Blob(
-                    data=image_data,
-                    mime_type=mime_type
+            await self._session.send(
+                input=types.LiveClientRealtimeInput(
+                    media_chunks=[
+                        types.Blob(
+                            data=image_data,
+                            mime_type=mime_type
+                        )
+                    ]
                 )
             )
             logger.debug(f"[{self.session_id}] Sent image frame ({len(image_data)} bytes)")
@@ -166,9 +174,9 @@ class GeminiSession:
             return
 
         try:
-            await self._session.send_client_content(
-                turns=text,
-                turn_complete=True
+            await self._session.send(
+                input=text,
+                end_of_turn=True
             )
             logger.debug(f"[{self.session_id}] Sent text: {text[:50]}...")
         except Exception as e:
@@ -228,23 +236,6 @@ class GeminiSession:
                         if self.on_turn_complete:
                             await self.on_turn_complete()
 
-                    # ---- Handle output audio transcription ----
-                    if (
-                        response.server_content
-                        and response.server_content.output_transcription
-                    ):
-                        transcript_text = response.server_content.output_transcription.text
-                        if transcript_text and self.on_transcript:
-                            await self.on_transcript(transcript_text, "model")
-
-                    # ---- Handle input audio transcription ----
-                    if (
-                        response.server_content
-                        and response.server_content.input_transcription
-                    ):
-                        transcript_text = response.server_content.input_transcription.text
-                        if transcript_text and self.on_transcript:
-                            await self.on_transcript(transcript_text, "user")
 
         except asyncio.CancelledError:
             logger.info(f"[{self.session_id}] Receive loop cancelled")
