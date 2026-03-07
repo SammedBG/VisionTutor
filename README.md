@@ -1,17 +1,26 @@
-# VisionTutor 👀🗣️
-*An AI tutor that sees your notes, hears your questions, and responds in real-time.*
+<div align="center">
+  <img src="https://raw.githubusercontent.com/SammedBG/Elucid-Real-time-visual-study-tutor-powered-by-Gemini-Live/main/frontend/app/icon.svg" width="100" height="100" />
+  <h1>VisionTutor 👀🗣️</h1>
+  <p><strong>An AI tutor that sees your notes, hears your questions, and responds in real-time.</strong></p>
 
-Built for the **Gemini Live Agent Challenge** (Category: *Live Agents 🗣️*).
-
-[![Deploy to Google Cloud](https://img.shields.io/badge/Deployed_on-Google_Cloud-blue?logo=googlecloud)](https://cloud.google.com/)
-[![Built with Gemini](https://img.shields.io/badge/Powered_by-Gemini_2.5_Live-indigo?logo=google)](https://ai.google.dev/)
+  [![Deploy to Google Cloud](https://img.shields.io/badge/Deployed_on-Google_Cloud-blue?logo=googlecloud)](https://cloud.google.com/)
+  [![Built with Gemini](https://img.shields.io/badge/Powered_by-Gemini_2.5_Live-indigo?logo=google)](https://ai.google.dev/)
+  [![Hackathon](https://img.shields.io/badge/Submission-Gemini_Live_Agent_Challenge-orange)]()
+</div>
 
 ---
 
-## 🎯 What it is
-VisionTutor is a next-generation study application that moves far beyond standard text-based chat. By leveraging the new **Gemini Live API (WebSockets)** via the **Google GenAI Python SDK (v1.5.0)**, VisionTutor acts as a real-time conversational agent.
+## 🎯 Inspiration
 
-### Features
+Standard text-based LLMs are great for generating essays or fixing code, but when it comes to *studying*, students don't learn by typing out long, complex math equations or describing a physics diagram via text. 
+
+We built **VisionTutor** to replicate the experience of sitting next to a real human tutor. We wanted an AI that you can point at your handwritten homework, ask a question out loud, and get an immediate, conversational response that you can interrupt at any time if you get confused.
+
+## 💡 What it does
+
+VisionTutor is a next-generation study application that moves far beyond standard text-based chat. By leveraging the new **Gemini Live API (WebSockets)** via the **Google GenAI Python SDK (v1.5.0)**, VisionTutor acts as a real-time multimodal conversational agent.
+
+* **Live Agents Category 🗣️**: VisionTutor is built specifically for this track. It is a customized tutor that "sees" your homework and handles conversational interruptions gracefully.
 * **Multimodal Input**: Simultaneously accepts high-frequency PCM audio from your microphone and video frames from your webcam.
 * **"Show and Tell"**: Point your camera at handwritten math homework, physics diagrams, or upload a textbook screenshot while talking naturally.
 * **Instant Voice Response**: The tutor speaks back using Gemini's native voice (`Kore` persona) with near-zero latency.
@@ -20,7 +29,7 @@ VisionTutor is a next-generation study application that moves far beyond standar
 
 ---
 
-## 🏗️ Architecture
+## 🏗️ Architecture & How we built it
 
 ```mermaid
 flowchart TD
@@ -28,19 +37,17 @@ flowchart TD
         UI[Minimal Glassmorphic UI]
         Mic[Microphone PCM 16kHz]
         Cam[Webcam / Upload Frames 1fps]
-        Speaker[AudioContext 24kHz Playback]
+        Speaker[API AudioContext 24kHz]
         
         Mic & Cam --> UI
-        UI -->|WebSocket: JSON + Base64| API_Gateway
-        API_Gateway -->|WebSocket: JSON + Audio Chunks| Speaker
+        UI <-->|WebSocket: JSON + Base64| API_Gateway
     end
 
     subgraph Backend [Google Cloud Run (Python / FastAPI)]
         API_Gateway[WebSocket Handler]
         SessionMgr[GeminiSession Async Context]
         
-        API_Gateway -->|Route Media| SessionMgr
-        SessionMgr -->|Handle turn_complete / interrupt| API_Gateway
+        API_Gateway <-->|Route Media & State| SessionMgr
     end
 
     subgraph GoogleAI [Google GenAI]
@@ -50,26 +57,25 @@ flowchart TD
     SessionMgr <-->|BidiGenerateContent WSS| Model
 ```
 
+### Tech Stack Details
+* **Backend (Python/FastAPI)**: We used the newly released `google-genai` (v1.5.0) SDK to establish a continuous bidirectional WebSocket connection using `client.aio.live.connect()`. FastAPI acts as a proxy to isolate frontend clients from the model context.
+* **Frontend (Next.js/React)**: Features a custom Glassmorphic UI with animated aurora backgrounds. We utilized the core Web Audio API to capture raw 16kHz float32 arrays from the microphone, convert them to Int16 PCM, and schedule 24kHz audio buffers returned from Gemini perfectly seamlessly.
+* **Google Cloud Setup**: The entire backend is containerized using Docker and deployed to a fully managed **Google Cloud Run** instance (`visiontutar-357243848387.europe-west1.run.app`).
+
 ---
 
-## ⚙️ Technologies Used
+## 🧠 Challenges we ran into
 
-### Backend (Python/FastAPI)
-* **`google-genai` (v1.5.0)** – The newest Google GenAI SDK to open an `AsyncSession` to the Live API.
-* **FastAPI + Uvicorn** – To proxy WebSockets and isolate frontend connectivity from the model context.
-* **Docker** – For containerizing the application.
-* **Deployed to:** Google Cloud Run (See Proof of Deployment Video).
-
-### Frontend (Next.js/React)
-* **Next.js** (App Router)
-* **Web Audio API** – For capturing 16kHz float32 arrays, converting them to Int16 PCM, and cleanly scheduling 24kHz buffer nodes fetched from Gemini.
-* **Canvas API** – Extracting responsive chunks from the Webcam stream.
+1. **SDK Versioning & API Thrash:** Google’s new `google-genai` pip package changed rapidly. We had to migrate quickly from older `genai.chat` patterns to the experimental `client.aio.live.connect()` Async Context Managers required by SDK v1.5.0.
+2. **Method Hunting:** In version 1.5.0, older helper methods like `send_realtime_input` were condensed into a unified `send(input=types.LiveClientRealtimeInput(...))` function, which blocked us for hours before investigating the SDK source code directly to find the new Pydantic models.
+3. **Audio Synthesis Rendering Gaps:** While receiving PCM audio chunks from Gemini, putting them through a simple `onended` queue caused robotic stuttering due to the JavaScript Event Loop block gap. We had to implement a seamless Web Audio API scheduling mechanism (`nextPlayTimeRef`) to perfectly buffer chunks ahead of the browser's audio clock, making Gemini's voice flow smoothly!
+4. **Context Manager Garbage Collection:** Initially, the FastAPI websocket would instantly close after connecting. We discovered that because we only saved the `session` object, Python's garbage collector was killing the `_ctx_manager` and triggering an `__aexit__()` closure on the Live API!
 
 ---
 
 ## 🚀 How to Run Locally
 
-If you are a judge testing the application, follow these exact steps to reproduce:
+If you are a judge or developer wishing to test the application locally, follow these steps:
 
 ### Prerequisites
 * **Python 3.10+**
@@ -84,7 +90,7 @@ source .venv/bin/activate  # Or `.venv\Scripts\activate` on Windows
 pip install -r requirements.txt
 
 # Set your API Key
-export GEMINI_API_KEY="AIzaSy..."  # Or set in backend/.env file
+export GEMINI_API_KEY="AIzaSy..."  
 
 # Start the server (runs on port 8000)
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
@@ -96,37 +102,26 @@ Open a new terminal tab:
 cd frontend
 npm install
 
-# Connects to backend on localhost:8000
+# Optional: If you want to connect to your local backend instead of the Cloud Run instance
+# change NEXT_PUBLIC_BACKEND_WS_URL in .env.local to ws://localhost:8000/ws/session
+
 npm run dev
 ```
 
-Visit **`http://localhost:3000`** in Google Chrome or Microsoft Edge. 
-*Note: Ensure you allow Microphone and Camera permissions when prompted!*
+Visit **`http://localhost:3000`** in Google Chrome or Edge. Ensure you allow Microphone and Camera permissions when prompted!
 
 ---
 
-## ☁️ Google Cloud Deployment (Bonus Points)
+## ☁️ Google Cloud Deployment (Bonus Objective)
 
-The backend is fully bundled and automated for deployment on **Google Cloud Run**.
-As part of the hackathon "Bonus Points" initiative, an Infrastructure-as-Code automated deployment script has been written in `backend/deploy-backend.ps1` (for windows environments) / `.sh equivalents`.
+Our project meets the **Hackathon Bonus Points** requirement by automating cloud deployment via Infrastructure-as-code scripts!
 
-**To deploy yourself using GCP:**
+The backend includes a `Dockerfile` and an automated PowerShell deployment script (`deploy-backend.ps1`) which executes:
+1. `gcloud builds submit` to containerize the Python app.
+2. `gcloud run deploy` to automatically push it to our Cloud Run endpoint.
+3. Securely mounts the `VISIONTUTOR_GEMINI_API_KEY` straight from Google Secret Manager.
 
-1. Authenticate with `gcloud auth login`
-2. Set project: `gcloud config set project [YOUR-PROJECT-ID]`
-3. Create a Secret in Secret Manager named `VISIONTUTOR_GEMINI_API_KEY` holding your Gemini key.
-4. Run the automated script:
-   ```powershell
-   cd backend
-   .\deploy-backend.ps1 -ProjectId YOUR-PROJECT-ID
-   ```
-   *(This script handles building via `gcloud builds submit` and deploying via `gcloud run deploy`, automatically setting port configurations and mounting the API key secret).*
-
----
-
-## 🧠 Learnings & Challenges
-
-* **SDK Versioning:** Google’s new `google-genai` pip package changes rapidly. We had to migrate rapidly from `genai.chat` patterns to the experimental `client.aio.live.connect()` Async Context Managers required by SDK v1.5.0.
-* **Method Hunting:** In version 1.5.0, older helper methods like `send_realtime_input` were condensed into a unified `send(input=types.LiveClientRealtimeInput(...))` function, requiring careful validation against the SDK source.
-* **Audio Synthesis Rendering Gap:** While receiving PCM audio chunks from Gemini, simple `onended` queue methods caused robotic stuttering due to the Event Loop block gap. We implemented a seamless Web Audio API scheduling mechanism (`nextPlayTimeRef`) to perfectly buffer chunks ahead of time, making Gemini's voice flow smoothly!
-* **FastAPI WebSocket Proxying:** Holding the WebSocket connection open indefinitely natively between the Python Server and React Client while inside the Gemini `__aenter__` context manager required strong task separation `asyncio.create_task()` to prevent overlapping thread panics.
+## 🔮 What's next for VisionTutor
+* **Session Memory & Firestore Integration:** Saving whiteboard sessions and transcripts into a database so students can review past tutoring sessions.
+* **Canvas Drawing Mode:** Allowing the student to actually draw math equations on their screen using their mouse/stylus instead of just showing paper to the webcam.
+* **Smarter End-of-Turn Detection:** Further tuning the Voice Activity Detection (VAD) alongside the Gemini `interrupted` flag for a tighter conversation loop.
