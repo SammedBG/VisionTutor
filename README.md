@@ -54,8 +54,8 @@ VisionTutor is a **live AI agent** that acts as your personal study tutor:
 ### 1. Clone & Setup
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/visiontutor.git
-cd visiontutor
+git clone https://github.com/SammedBG/VisionTutor.git
+cd VisionTutor
 ```
 
 ### 2. Backend
