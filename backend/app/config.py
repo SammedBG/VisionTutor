@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
+
 @dataclass
 class GeminiConfig:
     """Gemini Live API configuration."""
