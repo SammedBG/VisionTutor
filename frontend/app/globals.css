@@ -675,3 +675,42 @@ video.mirror { transform: scaleX(-1); }
   height: 100%;
   object-fit: cover;
 }
+
+/* ══════════════════════════════════════════ 
+   MOBILE RESPONSIVENESS
+   ══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Landing Page */
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  /* Session Page Layout */
+  .session-body {
+    flex-direction: column;
+  }
+  
+  .sidebar {
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border-dim);
+    flex-shrink: 0;
+  }
+  
+  .cam-placeholder {
+    max-height: 250px;
+    aspect-ratio: auto;
+  }
+  
+  /* Hide the desktop video element container on small screens to save space if needed */
+  .sidebar > .flex-1 {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Message bubbles can take more width */
+  .msg-bubble {
+    max-width: 95%;
+  }
+}
