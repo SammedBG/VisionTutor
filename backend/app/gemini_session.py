@@ -45,6 +45,7 @@ class GeminiSession:
         on_turn_complete: Optional[Callable[[], Awaitable[None]]] = None,
         on_session_error: Optional[Callable[[str], Awaitable[None]]] = None,
     ):
+    
         """
         Args:
             on_audio: callback(audio_bytes) -> called with PCM audio from Gemini
