@@ -130,7 +130,7 @@ function LandingPage({ onStart, error }) {
           </h1>
           <p style={{ fontSize: 16, color: "var(--text-secondary)", lineHeight: 1.7, maxWidth: 420, margin: "0 auto" }}>
             An AI tutor that <strong style={{ color: "var(--text-primary)" }}>sees your notes</strong> and{" "}
-            <strong style={{ color: "var(--text-primary)" }}>hears your questions</strong> — responding in real time with voice.
+            <strong style={{ color: "var(--text-primary)" }}>hears your questions</strong> responding in real time with voice.
           </p>
         </div>
 
@@ -244,7 +244,8 @@ function SessionUI({ tutor }) {
     files.forEach((file) => {
       const url = URL.createObjectURL(file);
       setUploadedImages((prev) => [...prev, { url, name: file.name }]);
-      tutor.sendImage(file);
+      // Automatically trigger a check work on the new file!
+      tutor.checkWork(file);
     });
     e.target.value = "";
   }, [tutor]);
@@ -400,13 +401,23 @@ function SessionUI({ tutor }) {
           <div style={{ padding: "0 16px 12px" }}>
             <button
               onClick={() => tutor.checkWork()}
+              disabled={!showCamera && uploadedImages.length === 0}
               className="btn-primary"
               style={{
-                background: "var(--gradient-warm)",
+                background: (!showCamera && uploadedImages.length === 0) 
+                  ? "var(--bg-elevated)" 
+                  : "var(--gradient-warm)",
+                color: (!showCamera && uploadedImages.length === 0)
+                  ? "var(--text-dim)"
+                  : "inherit",
+                opacity: (!showCamera && uploadedImages.length === 0) ? 0.5 : 1,
+                cursor: (!showCamera && uploadedImages.length === 0) ? "not-allowed" : "pointer",
                 padding: "10px 16px",
                 fontSize: 13,
                 borderRadius: 12,
+                transition: "all 0.2s ease"
               }}
+              title={(!showCamera && uploadedImages.length === 0) ? "Turn on camera or upload an image first" : "Find mistakes in my work"}
             >
               <IconSearch size={15} /> Check My Work
             </button>
