@@ -9,7 +9,7 @@ const inter = Inter({
 
 
 export const metadata = {
-  title: "VisionTutor — AI Study Tutor",
+  title: "VisionTutor - AI Study Tutor",
   description:
     "Real-time AI study tutor that sees your notes and hears your questions. Powered by Gemini Live API.",
   keywords: "AI tutor, study help, Gemini, real-time, voice, vision",
